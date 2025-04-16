@@ -1,7 +1,7 @@
 # Overview
 
 This is the skeleton code for Algorithms and Analysis COSC2123/3119 - *Dynamic Programming in Action: The Knapsack-Maze Challenge*. Across multiple tasks in this assignment, you will design and implement algorithms that navigate a maze to collect treasures. You will address both fully observable settings (where treasure
-locations are known) and partially observable ones (where treasure locations aren’t unknown),
+locations are known) and partially observable ones (where treasure locations are unknown),
 which requires strategic exploration and value estimation when solving the maze.
 
 [Additional information, as well as the specification, can be found here.](https://rmit.instructure.com/courses/141229/assignments/1076865)
