@@ -26,11 +26,6 @@ class TaskDSolver:
         self.m_value = 0
         self.m_reward = float('-inf') # initial reward should be terrible
 
-        # set up initial condition for knapsack
-        self.m_knapsack.optimalCells = []
-        self.m_knapsack.optimalValue = 0
-        self.m_knapsack.optimalWeight = 0
-
         # you may which to add more parameters here, such as probabilities, etc
         # you may update these parameters using the Maze object in SolveMaze
 
@@ -56,7 +51,13 @@ class TaskDSolver:
 
         Returns: Nothing, but updates variables
         """
+        # set up initial condition for knapsack. It should be empty
+        self.m_knapsack.optimalCells = []
+        self.m_knapsack.optimalValue = 0
+        self.m_knapsack.optimalWeight = 0
 
+        # set up some intitial values for the TaskDSolver object. As you calculate a solution, you will need
+        # to change the solver path and recalculate your reward.
         self.m_solverPath = []
         self.m_entranceUsed = entrance
         self.m_exitUsed = exit
