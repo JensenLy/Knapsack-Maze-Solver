@@ -56,6 +56,14 @@ class TaskDSolver:
         self.m_knapsack.optimalValue = 0
         self.m_knapsack.optimalWeight = 0
 
+        # get intial knowledge base of the maze items. This is the only occasion we can use maze.m_items
+        # get the number of items in the maze from the paramaters
+        items_in_maze = maze.m_itemParams[0]
+        # calculate total weight in maze form item list
+        maze_item_weight = sum(weight_value[0] for weight_value in maze.m_items.values())
+        # calculate total value in maze from item list
+        maze_item_value = sum(weight_value[1] for weight_value in maze.m_items.values())
+
         # set up some intitial values for the TaskDSolver object. As you calculate a solution, you will need
         # to change the solver path and recalculate your reward.
         self.m_solverPath = []
