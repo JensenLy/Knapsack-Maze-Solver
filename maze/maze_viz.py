@@ -33,12 +33,16 @@
 
 try:
     import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyArrow
 except:
     plt = None
     
 
 from maze.maze import Maze
 from maze.util import Coordinates
+from scipy.interpolate import make_interp_spline
+from matplotlib.collections import LineCollection
+import numpy as np
 
 from solver.mazeSolver import MazeSolver
 
@@ -175,36 +179,61 @@ class Visualizer(object):
         for cell in self.m_knapsack.optimalCells:
             self.m_ax.plot(cell[1] + 1.5, cell[0] + 1.5, 'gs', alpha=0.5, markersize=7)
 
-
     def plot_walls(self):
         """ 
-        Plots the walls of a maze. This is used when generating the maze image.
+        Plots the walls of a maze. Solid black lines for walls, dotted lines where walls are missing.
         """
         for r in range(0, self.m_maze.rowNum()):
             for c in range(0, self.m_maze.colNum()):
-                # top
-                if self.m_maze.hasWall(Coordinates(r-1,c), Coordinates(r,c)):
-                    self.m_ax.plot([(c+1)*self.m_cellSize, (c+1+1)*self.m_cellSize],
-                                   [(r+1)*self.m_cellSize, (r+1)*self.m_cellSize], color="k")    
-                # left
-                if self.m_maze.hasWall(Coordinates(r,c-1), Coordinates(r,c)):
-                    self.m_ax.plot([(c+1)*self.m_cellSize, (c+1)*self.m_cellSize],
-                                   [(r+1)*self.m_cellSize, (r+1+1)*self.m_cellSize], color="k")  
+                # Top wall (between (r-1, c) and (r, c))
+                p1 = Coordinates(r - 1, c)
+                p2 = Coordinates(r, c)
+                x_start = (c + 1) * self.m_cellSize
+                x_end = (c + 2) * self.m_cellSize
+                y = (r + 1) * self.m_cellSize
 
+                if self.m_maze.hasWall(p1, p2):
+                    self.m_ax.plot([x_start, x_end], [y, y], color="k", linewidth=1)
+                else:
+                    self.m_ax.plot([x_start, x_end], [y, y], color="gray", linewidth=0.5, linestyle=":")
 
-        # do bottom boundary 
+                # Left wall (between (r, c-1) and (r, c))
+                p3 = Coordinates(r, c - 1)
+                p4 = Coordinates(r, c)
+                x = (c + 1) * self.m_cellSize
+                y_start = (r + 1) * self.m_cellSize
+                y_end = (r + 2) * self.m_cellSize
+
+                if self.m_maze.hasWall(p3, p4):
+                    self.m_ax.plot([x, x], [y_start, y_end], color="k", linewidth=1)
+                else:
+                    self.m_ax.plot([x, x], [y_start, y_end], color="gray", linewidth=0.5, linestyle=":")
+
+        # Bottom boundary
         for c in range(0, self.m_maze.colNum()):
-            # top
-            if self.m_maze.hasWall(Coordinates(self.m_maze.rowNum()-1,c), Coordinates(self.m_maze.rowNum(),c)):
-                self.m_ax.plot([(c+1)*self.m_cellSize, (c+1+1)*self.m_cellSize],
-                                [(self.m_maze.rowNum()+1)*self.m_cellSize, (self.m_maze.rowNum()+1)*self.m_cellSize], color="k")    
+            p1 = Coordinates(self.m_maze.rowNum() - 1, c)
+            p2 = Coordinates(self.m_maze.rowNum(), c)
+            x_start = (c + 1) * self.m_cellSize
+            x_end = (c + 2) * self.m_cellSize
+            y = (self.m_maze.rowNum() + 1) * self.m_cellSize
 
-        # do right boundary 
+            if self.m_maze.hasWall(p1, p2):
+                self.m_ax.plot([x_start, x_end], [y, y], color="k", linewidth=1)
+            else:
+                self.m_ax.plot([x_start, x_end], [y, y], color="gray", linewidth=0.5, linestyle=":")
+
+        # Right boundary
         for r in range(0, self.m_maze.rowNum()):
-            # left
-            if self.m_maze.hasWall(Coordinates(r,self.m_maze.colNum()-1), Coordinates(r,self.m_maze.colNum())):
-                self.m_ax.plot([(self.m_maze.colNum()+1)*self.m_cellSize, (self.m_maze.colNum()+1)*self.m_cellSize],
-                                [(r+1)*self.m_cellSize, (r+1+1)*self.m_cellSize], color="k")  
+            p1 = Coordinates(r, self.m_maze.colNum() - 1)
+            p2 = Coordinates(r, self.m_maze.colNum())
+            x = (self.m_maze.colNum() + 1) * self.m_cellSize
+            y_start = (r + 1) * self.m_cellSize
+            y_end = (r + 2) * self.m_cellSize
+
+            if self.m_maze.hasWall(p1, p2):
+                self.m_ax.plot([x, x], [y_start, y_end], color="k", linewidth=1)
+            else:
+                self.m_ax.plot([x, x], [y_start, y_end], color="gray", linewidth=0.5, linestyle=":")
 
 
     def plotEntExit(self):
@@ -243,36 +272,86 @@ class Visualizer(object):
 
     def plotSolverPath(self):
         """
-        Draw the path that the solver used to solve the maze.  They are displayed as a series of circles.
+        Draw the solver's path as smooth interpolated curves with gradient color,
+        offset to simulate hugging the right wall in movement direction.
         """
         if not self.multiPaths:
-            # retrieved the stored solver path
             solverPath = self.m_solver.getSolverPath()
-            solverPath = [solverPath] 
+            solverPath = [solverPath]
         else:
             solverPath = self.m_solver.getSolverPath().values()
 
-        # if no path, then just return
         if len(solverPath) == 0:
-                return
-        
-        base_cmap = plt.get_cmap('tab10')
-        
-        for idx, path in enumerate(solverPath):
-            base_color = base_cmap(idx % 10)[:3]  # filtering out the alpha value
-           
-            for circle_num in range(len(path)):
-                # Calculate gradient factor based on progress along the path
-                gradient_factor = circle_num / (len(path) - 1)  # Normalized gradient value between 0 and 1
-                
-                color = tuple([gradient_factor * base + (1 - gradient_factor) * 0.8  for base in base_color])
-                
+            return
 
-                # Draw circles with distinct base colors and gradients along the path
-                self.m_ax.add_patch(plt.Circle(((path[circle_num].getCol() + 1.5) * self.m_cellSize,
-                                        (path[circle_num].getRow() + 1.5) * self.m_cellSize), 
-                                        0.2 * self.m_cellSize, fc=color, alpha=0.5))
+        offset_spacing = 0.1 * self.m_cellSize
 
+        for path in solverPath:
+            if len(path) < 2:
+                continue
+
+            points = []
+            for i in range(len(path)):
+                coord = path[i]
+                x = (coord.getCol() + 1.5) * self.m_cellSize
+                y = (coord.getRow() + 1.5) * self.m_cellSize
+
+                # Determine direction to next point if possible
+                if i < len(path) - 1:
+                    next_coord = path[i + 1]
+                    dx = next_coord.getCol() - coord.getCol()
+                    dy = next_coord.getRow() - coord.getRow()
+                else:
+                    # Use previous direction if last point
+                    dx = coord.getCol() - path[i - 1].getCol()
+                    dy = coord.getRow() - path[i - 1].getRow()
+
+                length = (dx ** 2 + dy ** 2) ** 0.5
+                if length == 0:
+                    offset_dx = offset_dy = 0
+                else:
+                    unit_dx = dx / length
+                    unit_dy = dy / length
+
+                    # Clockwise perpendicular (right-hand wall)
+                    offset_dx = unit_dy * offset_spacing
+                    offset_dy = -unit_dx * offset_spacing
+
+                points.append([x + offset_dx, y + offset_dy])
+
+            points = np.array(points)
+
+            # Interpolate curve
+            x_vals, y_vals = points[:, 0], points[:, 1]
+            t_vals = np.linspace(0, 1, len(points))
+
+            # More dense points for smoothness
+            t_dense = np.linspace(0, 1, 1000)
+
+            # Fit splines
+            spline_x = make_interp_spline(t_vals, x_vals, k=3)
+            spline_y = make_interp_spline(t_vals, y_vals, k=3)
+
+            x_smooth = spline_x(t_dense)
+            y_smooth = spline_y(t_dense)
+
+            # Create smooth segments
+            smooth_points = np.column_stack((x_smooth, y_smooth))
+            segments = np.array([[smooth_points[i], smooth_points[i + 1]] for i in range(len(smooth_points) - 1)])
+
+            # Gradient color from blue to red with alpha
+            colors = [
+                (
+                    i / (len(segments) - 1),  # R
+                    0.0,  # G
+                    1.0 - i / (len(segments) - 1),  # B
+                    0.3  # Alpha
+                )
+                for i in range(len(segments))
+            ]
+
+            lc = LineCollection(segments, colors=colors, linewidths=2, alpha=0.7)
+            self.m_ax.add_collection(lc)
     
     def configure_plot(self):
         """Sets the initial properties of the maze plot. Also creates the plot and axes"""
