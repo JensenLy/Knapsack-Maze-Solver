@@ -57,7 +57,7 @@ In order to create your own visualisations, you will need to install matplotlib.
 
 For your convenience, we have included a very basic test file. It can be run by entering the testing folder and running:
 
-```python student_tester.py```
+```python student_testing.py```
 
 The output will tell you if you pass and fail some basic test for Tasks A and B.
 
