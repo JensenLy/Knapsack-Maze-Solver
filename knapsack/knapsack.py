@@ -72,9 +72,9 @@ class Knapsack:
         stats['count'] += 1
 
         # delete the below 3 lines if function implemented
-        with open(filename + '.txt', "w") as f:
-            f.write(str(stats['count']))
-        stats['logged'] = True
+        # with open(filename + '.txt', "w") as f:
+        #     f.write(str(stats['count']))
+        # stats['logged'] = True
 
         # Base case
         if capacity == 0 or num_items == 0:
@@ -87,8 +87,31 @@ class Knapsack:
         """
         IMPLEMENT ME FOR TASK A
         """
+        L_opt = []; 
+        w_opt = 0; 
+        v_opt = 0; 
 
-        return [], 0, 0
+        t = items[num_items - 1]
+        location = t[0]
+        weight = t[1]
+        value = t[2]
+
+        if weight > capacity: 
+            return self.recursiveKnapsack(items, capacity, num_items - 1, filename, stats)
+
+        L_inc, w_inc, v_inc = self.recursiveKnapsack(items, capacity - weight, num_items - 1, filename, stats)
+        L_exc, w_exc, v_exc  = self.recursiveKnapsack(items, capacity, num_items - 1, filename, stats)
+
+        if v_inc + value > v_exc:
+            L_opt = L_inc + [location]
+            w_opt = w_inc + weight
+            v_opt = v_inc + value
+        else:
+            L_opt = L_exc
+            w_opt = w_exc
+            v_opt = v_exc
+
+        return L_opt, w_opt, v_opt
 
     def dynamicKnapsack(self, items: list, capacity: int, num_items: int, filename: str):
         """
