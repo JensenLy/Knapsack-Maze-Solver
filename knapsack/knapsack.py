@@ -91,7 +91,13 @@ class Knapsack:
         w_opt = 0; 
         v_opt = 0; 
 
-        t = items[num_items - 1]
+        t: list = items[num_items - 1]
+
+        # print("location" + str(type(t[0]))) 
+        # print("weight" + str(type(t[1]))) 
+        # print("value" + str(type(t[2]))) 
+        # print("")
+
         location = t[0]
         weight = t[1]
         value = t[2]
@@ -132,7 +138,35 @@ class Knapsack:
         """
         IMPLEMENT ME FOR TASK B
         """
+        # first column is all 0s
+        for i in range(num_items + 1):
+            dp[i][0] = 0
+        print(str(num_items))
+        # print(str(len(dp)))
 
+        # for i in range(0, len(dp)):
+        #     out: str = ""
+        #     for j in range(0, len(dp[i])): 
+        #          out += " " + str(dp[i][j])
+        #     print (out)
+
+        for i in range(1, num_items + 1): 
+            for j in range(1, capacity + 1): 
+                if dp[i][j] == None: 
+                    if items[i - 1][1] > j:
+                        dp[i][j] = dp[i-1][j]
+                    else: 
+                        dp[i][j] = max(dp[i - 1][j - items[i - 1][1]] + items[i - 1][2], dp[i - 1][j])
+        
+        # for i in range(0, len(dp)):
+        #     for j in range(0, len(dp[i])): 
+        #          print (str(i) + " " + str(j) + " " + str(dp[i][j]))
+
+        # for i in range(0, len(dp)):
+        #     out: str = ""
+        #     for j in range(0, len(dp[i])): 
+        #          out += " " + str(dp[i][j])
+        #     print (out)
         # === Save DP Table to CSV ===
         self.saveCSV(dp, items, capacity, filename)
 
