@@ -138,14 +138,9 @@ class Knapsack:
         """
         IMPLEMENT ME FOR TASK B
         """
-        # print(str(len(dp)))
-
-        # for i in range(0, len(dp)):
-        #     out: str = ""
-        #     for j in range(0, len(dp[i])): 
-        #          out += " " + str(dp[i][j])
-        #     print (out)
-
+    
+        # Any of "items[i - 1]" is from converting the (kind of?) 1-indexed of the table to 0-indexed of items
+        # topDown is a Memory Function
         def topDown(i: int, c: int): 
             if dp[i][c] is not None: 
                 return dp[i][c]
@@ -163,21 +158,33 @@ class Knapsack:
             return output
         
         max_value = topDown(num_items, capacity)    
-        
-        # for i in range(0, len(dp)):
-        #     for j in range(0, len(dp[i])): 
-        #          print (str(i) + " " + str(j) + " " + str(dp[i][j]))
 
         # Test by printing into terminal
-        for i in range(0, len(dp)):
-            out: str = ""
-            for j in range(0, len(dp[i])): 
-                 if (dp[i][j] is None):
-                     out += " #"
-                 else:
-                    out += " " + str(dp[i][j])
-            print(out)
+        # for i in range(0, len(dp)):
+        #     out: str = ""
+        #     for j in range(0, len(dp[i])): 
+        #          if (dp[i][j] is None):
+        #              out += " #"
+        #          else:
+        #             out += " " + str(dp[i][j])
+        #     print(out)
 
+        # Backtracking
+        i = num_items
+        c = capacity
+        
+        while i > 0 and c > 0:
+            # If the value at this cell is not the same as the one right above it in the table
+            if dp[i][c] != dp[i-1][c]:
+                selected_items.append(items[i - 1][0])  # Add location
+                selected_weight += items[i - 1][1]  # Add weight
+                
+                # Subtract weight from remaining capacity
+                c -= items[i - 1][1]
+            
+            # Move to the previous item
+            i -= 1
+       
         # === Save DP Table to CSV ===
         self.saveCSV(dp, items, capacity, filename)
 
