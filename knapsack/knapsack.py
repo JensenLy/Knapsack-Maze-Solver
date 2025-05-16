@@ -146,21 +146,23 @@ class Knapsack:
         #          out += " " + str(dp[i][j])
         #     print (out)
 
-        def topdown(num: int, cap: int): 
-            if dp[num][cap] is not None: 
-                return dp[num][cap]
+        def topDown(i: int, c: int): 
+            if dp[i][c] is not None: 
+                return dp[i][c]
     
-            if num == 0 or cap == 0:
+            if i == 0 or c == 0:
                 output = 0
-            elif items[num - 1][1] > cap:
-                output = topdown(num-1, cap)
+            elif items[i - 1][1] > c:
+                output = topDown(i-1, c)
             else:
-                output = max(topdown(num - 1, cap - items[num - 1][1]) + items[num - 1][2], topdown(num - 1, cap))
+                inc = topDown(i - 1, c - items[i - 1][1]) + items[i - 1][2]
+                exc = topDown(i - 1, c)
+                output = max(inc, exc)
 
-            dp[num][cap] = output; 
+            dp[i][c] = output; 
             return output
         
-        topdown(num_items, capacity)    
+        max_value = topDown(num_items, capacity)    
         
         # for i in range(0, len(dp)):
         #     for j in range(0, len(dp[i])): 
