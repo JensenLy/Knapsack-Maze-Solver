@@ -138,10 +138,6 @@ class Knapsack:
         """
         IMPLEMENT ME FOR TASK B
         """
-        # first column is all 0s
-        for i in range(num_items + 1):
-            dp[i][0] = 0
-        print(str(num_items))
         # print(str(len(dp)))
 
         # for i in range(0, len(dp)):
@@ -150,23 +146,36 @@ class Knapsack:
         #          out += " " + str(dp[i][j])
         #     print (out)
 
-        for i in range(1, num_items + 1): 
-            for j in range(1, capacity + 1): 
-                if dp[i][j] == None: 
-                    if items[i - 1][1] > j:
-                        dp[i][j] = dp[i-1][j]
-                    else: 
-                        dp[i][j] = max(dp[i - 1][j - items[i - 1][1]] + items[i - 1][2], dp[i - 1][j])
+        def topdown(num: int, cap: int): 
+            if dp[num][cap] is not None: 
+                return dp[num][cap]
+    
+            if num == 0 or cap == 0:
+                output = 0
+            elif items[num - 1][1] > cap:
+                output = topdown(num-1, cap)
+            else:
+                output = max(topdown(num - 1, cap - items[num - 1][1]) + items[num - 1][2], topdown(num - 1, cap))
+
+            dp[num][cap] = output; 
+            return output
+        
+        topdown(num_items, capacity)    
         
         # for i in range(0, len(dp)):
         #     for j in range(0, len(dp[i])): 
         #          print (str(i) + " " + str(j) + " " + str(dp[i][j]))
 
-        # for i in range(0, len(dp)):
-        #     out: str = ""
-        #     for j in range(0, len(dp[i])): 
-        #          out += " " + str(dp[i][j])
-        #     print (out)
+        # Test by printing into terminal
+        for i in range(0, len(dp)):
+            out: str = ""
+            for j in range(0, len(dp[i])): 
+                 if (dp[i][j] is None):
+                     out += " #"
+                 else:
+                    out += " " + str(dp[i][j])
+            print(out)
+
         # === Save DP Table to CSV ===
         self.saveCSV(dp, items, capacity, filename)
 
