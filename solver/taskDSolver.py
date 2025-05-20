@@ -10,11 +10,12 @@
 from maze.util import Coordinates
 from maze.maze import Maze
 
-from solver.knapsackSolver import KnapsackSolver
 from knapsack.knapsack import Knapsack
 from itertools import permutations
 
 from typing import List, Dict, Optional
+
+from solver.knapsackSolver import KnapsackSolver
 
 
 class TaskDSolver:
@@ -86,7 +87,7 @@ class TaskDSolver:
         print(entrance)
         print(self.foundTreasures[0])
             
-        self.m_knapsack.optimalCells, self.m_knapsack.optimalWeight, self.m_knapsack.optimalValue = self.m_knapsack.dynamicKnapsack(self.foundTreasures, self.m_knapsack.capacity, len(self.foundTreasures))
+        self.m_knapsack.optimalCells, self.m_knapsack.optimalWeight, self.m_knapsack.optimalValue = self.m_knapsack.dynamicKnapsack(self.foundTreasures, self.m_knapsack.capacity, len(self.foundTreasures), "testing")
 
         self.m_cellsExplored = len(set(self.m_solverPath))
         self.m_reward = self.reward()
