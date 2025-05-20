@@ -10,6 +10,7 @@
 from maze.util import Coordinates
 from maze.maze import Maze
 
+from solver.knapsackSolver import KnapsackSolver
 from knapsack.knapsack import Knapsack
 from itertools import permutations
 
@@ -28,6 +29,7 @@ class TaskDSolver:
 
         # you may which to add more parameters here, such as probabilities, etc
         # you may update these parameters using the Maze object in SolveMaze
+        self.foundTreasures: List[tuple[Coordinates, int, int]] = [] #coords, weight, values
 
     def reward(self):
         return self.m_knapsack.optimalValue - self.m_cellsExplored
@@ -69,5 +71,22 @@ class TaskDSolver:
         self.m_solverPath = []
         self.m_entranceUsed = entrance
         self.m_exitUsed = exit
+        self.m_cellsExplored = len(set(self.m_solverPath))
+        self.m_reward = self.reward()
+
+        self.m_solverPath = KnapsackSolver.bfs(self, maze, entrance, exit)
+        for x in self.m_solverPath:
+            loc = (x.getRow(), x.getCol())
+            item = maze.m_items.get(loc)
+            if item is not None: 
+                value, weight = item       
+                toBeAdded = ((x.getRow(), x.getCol()), value, weight)
+                self.foundTreasures.append(toBeAdded)
+
+        print(entrance)
+        print(self.foundTreasures[0])
+            
+        self.m_knapsack.optimalCells, self.m_knapsack.optimalWeight, self.m_knapsack.optimalValue = self.m_knapsack.dynamicKnapsack(self.foundTreasures, self.m_knapsack.capacity, len(self.foundTreasures))
+
         self.m_cellsExplored = len(set(self.m_solverPath))
         self.m_reward = self.reward()
