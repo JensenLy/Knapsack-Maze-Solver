@@ -84,8 +84,8 @@ class TaskDSolver:
                 toBeAdded = ((x.getRow(), x.getCol()), value, weight)
                 self.foundTreasures.append(toBeAdded)
 
-        print(entrance)
-        print(self.foundTreasures[0])
+        # print(entrance)
+        # print(self.foundTreasures[0])
             
         self.m_knapsack.optimalCells, self.m_knapsack.optimalWeight, self.m_knapsack.optimalValue = self.m_knapsack.dynamicKnapsack(self.foundTreasures, self.m_knapsack.capacity, len(self.foundTreasures), "testing")
 
