@@ -76,7 +76,6 @@ class TaskDSolver:
         self.m_reward = self.reward()
         
         self.foundTreasures: List[tuple[Coordinates, int, int]] = [] #coords, weight, values
-        self.m_cellsExplored = 0
 
         centreX = math.floor(maze.rowNum() / 2)
         centreY = math.floor(maze.colNum() / 2)
@@ -88,15 +87,13 @@ class TaskDSolver:
         for cell in self.m_solverPath:
             loc = (cell.getRow(), cell.getCol())
             item = maze.m_items.get(loc)
-            self.m_cellsExplored += 1
+
             if item: 
                 value, weight = item       
                 toBeAdded = (loc, value, weight)
                 self.foundTreasures.append(toBeAdded)
-
-        # print(entrance)
-        # print(self.foundTreasures[0])
             
         self.m_knapsack.optimalCells, self.m_knapsack.optimalWeight, self.m_knapsack.optimalValue = self.m_knapsack.dynamicKnapsack(self.foundTreasures, self.m_knapsack.capacity, len(self.foundTreasures), "testing")
 
+        self.m_cellsExplored = len(set(self.m_solverPath))
         self.m_reward = self.reward()
