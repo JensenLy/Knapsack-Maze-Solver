@@ -16,6 +16,7 @@ from itertools import permutations
 from typing import List, Dict, Optional
 
 from solver.knapsackSolver import KnapsackSolver
+import math
 
 
 class TaskDSolver:
@@ -30,7 +31,6 @@ class TaskDSolver:
 
         # you may which to add more parameters here, such as probabilities, etc
         # you may update these parameters using the Maze object in SolveMaze
-        self.foundTreasures: List[tuple[Coordinates, int, int]] = [] #coords, weight, values
 
     def reward(self):
         return self.m_knapsack.optimalValue - self.m_cellsExplored
@@ -74,14 +74,24 @@ class TaskDSolver:
         self.m_exitUsed = exit
         self.m_cellsExplored = len(set(self.m_solverPath))
         self.m_reward = self.reward()
+        
+        self.foundTreasures: List[tuple[Coordinates, int, int]] = [] #coords, weight, values
+        self.m_cellsExplored = 0
 
-        self.m_solverPath = KnapsackSolver.bfs(self, maze, entrance, exit)
-        for x in self.m_solverPath:
-            loc = (x.getRow(), x.getCol())
+        centreX = math.floor(maze.rowNum() / 2)
+        centreY = math.floor(maze.colNum() / 2)
+        centre = Coordinates(centreX, centreY)
+
+        self.m_solverPath = KnapsackSolver.bfs(self, maze, entrance, centre)
+        self.m_solverPath += KnapsackSolver.bfs(self, maze, centre, exit)
+
+        for cell in self.m_solverPath:
+            loc = (cell.getRow(), cell.getCol())
             item = maze.m_items.get(loc)
-            if item is not None: 
+            self.m_cellsExplored += 1
+            if item: 
                 value, weight = item       
-                toBeAdded = ((x.getRow(), x.getCol()), value, weight)
+                toBeAdded = (loc, value, weight)
                 self.foundTreasures.append(toBeAdded)
 
         # print(entrance)
@@ -89,5 +99,4 @@ class TaskDSolver:
             
         self.m_knapsack.optimalCells, self.m_knapsack.optimalWeight, self.m_knapsack.optimalValue = self.m_knapsack.dynamicKnapsack(self.foundTreasures, self.m_knapsack.capacity, len(self.foundTreasures), "testing")
 
-        self.m_cellsExplored = len(set(self.m_solverPath))
         self.m_reward = self.reward()

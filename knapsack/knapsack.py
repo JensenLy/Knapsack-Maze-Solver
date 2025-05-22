@@ -93,11 +93,6 @@ class Knapsack:
 
         t: list = items[num_items - 1]
 
-        # print("location" + str(type(t[0]))) 
-        # print("weight" + str(type(t[1]))) 
-        # print("value" + str(type(t[2]))) 
-        # print("")
-
         location = t[0]
         weight = t[1]
         value = t[2]
