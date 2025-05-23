@@ -15,7 +15,6 @@ from itertools import permutations
 
 from typing import List, Dict, Optional
 
-# from solver.knapsackSolver import KnapsackSolver
 import math
 # import time
 
@@ -88,7 +87,7 @@ class TaskDSolver:
         northWest = Coordinates(maze.rowNum() - 1, 0)
 
         # Path will be entrance -> southWest -> southEast -> northEast -> southWest -> exit (with the path going to the centre and back for each corner visit)
-        path_segments = [
+        pathSegments = [
             (entrance, southWest),
 
             (southWest, centre),
@@ -110,7 +109,7 @@ class TaskDSolver:
             (southWest, exit)
         ]
 
-        for i, (start, end) in enumerate(path_segments):
+        for i, (start, end) in enumerate(pathSegments):
             segment = self.bfs(maze, start, end)
             if i == 0:
                 self.m_solverPath.extend(segment)
@@ -128,7 +127,7 @@ class TaskDSolver:
                 self.foundTreasures.append(toBeAdded)
         
         # Dynamic knapsack to choose which treasure to pick 
-        self.m_knapsack.optimalCells, self.m_knapsack.optimalWeight, self.m_knapsack.optimalValue = self.m_knapsack.dynamicKnapsack(self.foundTreasures, self.m_knapsack.capacity, len(self.foundTreasures), "testing")
+        self.m_knapsack.optimalCells, self.m_knapsack.optimalWeight, self.m_knapsack.optimalValue = self.dynamicKnapsack(self.foundTreasures, self.m_knapsack.capacity, len(self.foundTreasures))
 
         # Recalculate the reward
         self.m_cellsExplored = len(set(self.m_solverPath))
@@ -213,3 +212,57 @@ class TaskDSolver:
 
         # If goal is unreachable (shouldn’t happen in a fully connected maze)
         return []
+    
+    def dynamicKnapsack(self, items: list, capacity: int, num_items: int):
+        """
+        Dynamic 0/1 Knapsack that saves the dynamic programming table as a csv.
+
+        @param items: list of (name, weight, value)
+        @param capacity: current remaining knapsack capacity
+        @param num_items: number of items still being considered
+        @param filename: save name for csv of table (used for testing)
+        """
+        # Initialize DP table with None
+        dp = [[None] * (capacity + 1) for _ in range(num_items + 1)]
+        # first row is all 0s
+        dp[0] = [0] * (capacity + 1)
+
+        selected_items, selected_weight, max_value = [], 0, 0
+    
+        # Any of "items[i - 1]" is from converting the (kind of?) 1-indexed of the table to 0-indexed of items
+        # topDown is a Memory Function
+        def topDown(i: int, c: int): 
+            if dp[i][c] is not None: 
+                return dp[i][c]
+    
+            if i == 0 or c == 0:
+                output = 0
+            elif items[i - 1][1] > c:
+                output = topDown(i-1, c)
+            else:
+                inc = topDown(i - 1, c - items[i - 1][1]) + items[i - 1][2]
+                exc = topDown(i - 1, c)
+                output = max(inc, exc)
+
+            dp[i][c] = output; 
+            return output
+        
+        max_value = topDown(num_items, capacity)    
+
+        # Backtracking
+        i = num_items
+        c = capacity
+        
+        while i > 0 and c > 0:
+            # If the value at this cell is not the same as the one right above it in the table
+            if dp[i][c] != dp[i-1][c]:
+                selected_items.append(items[i - 1][0])  # Add location
+                selected_weight += items[i - 1][1]  # Add weight
+                
+                # Subtract weight from remaining capacity
+                c -= items[i - 1][1]
+            
+            # Move to the previous item
+            i -= 1
+
+        return selected_items, selected_weight, max_value
