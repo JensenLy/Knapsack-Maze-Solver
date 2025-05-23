@@ -71,11 +71,6 @@ class Knapsack:
         # Increment call count on every call - feed back into the function on each call for testing
         stats['count'] += 1
 
-        # delete the below 3 lines if function implemented
-        # with open(filename + '.txt', "w") as f:
-        #     f.write(str(stats['count']))
-        # stats['logged'] = True
-
         # Base case
         if capacity == 0 or num_items == 0:
             if not stats['logged'] and filename:
@@ -84,9 +79,6 @@ class Knapsack:
                 stats['logged'] = True  # Make sure we only log once
             return [], 0, 0
 
-        """
-        IMPLEMENT ME FOR TASK A
-        """
         L_opt = []; 
         w_opt = 0; 
         v_opt = 0; 
@@ -129,10 +121,6 @@ class Knapsack:
         dp[0] = [0] * (capacity + 1)
 
         selected_items, selected_weight, max_value = [], 0, 0
-
-        """
-        IMPLEMENT ME FOR TASK B
-        """
     
         # Any of "items[i - 1]" is from converting the (kind of?) 1-indexed of the table to 0-indexed of items
         # topDown is a Memory Function
@@ -153,16 +141,6 @@ class Knapsack:
             return output
         
         max_value = topDown(num_items, capacity)    
-
-        # Test by printing into terminal
-        # for i in range(0, len(dp)):
-        #     out: str = ""
-        #     for j in range(0, len(dp[i])): 
-        #          if (dp[i][j] is None):
-        #              out += " #"
-        #          else:
-        #             out += " " + str(dp[i][j])
-        #     print(out)
 
         # Backtracking
         i = num_items
