@@ -1,17 +1,16 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Kf5p43g2)
 # Overview
 
 This is the skeleton code for Algorithms and Analysis COSC2123/3119 - *Dynamic Programming in Action: The Knapsack-Maze Challenge*. Across multiple tasks in this assignment, you will design and implement algorithms that navigate a maze to collect treasures. You will address both fully observable settings (where treasure
 locations are known) and partially observable ones (where treasure locations are unknown),
 which requires strategic exploration and value estimation when solving the maze.
 
-[Additional information, as well as the specification, can be found here.](https://rmit.instructure.com/courses/141229/assignments/1076865)
+Additional information, as well as the specification, can be found in the root directory via this pdf: ```AA2025_Assignment_May13.pdf```
 
 ## Technical Specification
 
 The main script is *mazeRunner.py*. It is in the same folder as this README, and is run with the command:
 
-```python mazeRunner.py <config_file>```
+```python mazeRunner.py <config_file>
 
 In order to run the code, you must have a configuration file. The configuration file contains all the parameters that are needed to:
 - generate a maze;
