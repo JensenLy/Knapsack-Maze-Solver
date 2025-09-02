@@ -10,7 +10,7 @@ Additional information, as well as the specification, can be found in the root d
 
 The main script is *mazeRunner.py*. It is in the same folder as this README, and is run with the command:
 
-```python mazeRunner.py <config_file>
+```python mazeRunner.py <config_file>```
 
 In order to run the code, you must have a configuration file. The configuration file contains all the parameters that are needed to:
 - generate a maze;
